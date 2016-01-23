@@ -1,12 +1,16 @@
 <?xml version="1.0"?>
 <PluginConfig>
-	<Field id="apikey" type="textfield">
-		<Label>Prowl API Key:</Label>
-	</Field>
+  <Field id="appname" type="textfield" default="Indigo">
+    <Label>Application Name:</Label>
+  </Field>
+
+  <Field id="apikey" type="textfield">
+    <Label>Prowl API Key:</Label>
+  </Field>
 
   <Field id="separator001" type="separator" />
 
-	<Field type="checkbox" id="debug">
-		<Label>Enable debugging:</Label>
-	</Field>
+  <Field type="checkbox" id="debug">
+    <Label>Enable debugging:</Label>
+  </Field>
 </PluginConfig>

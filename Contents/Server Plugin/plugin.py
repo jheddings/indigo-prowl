@@ -22,6 +22,9 @@ class Plugin(indigo.PluginBase):
     def validatePrefsConfigUi(self, values):
         errors = indigo.Dict()
 
+        if values['appname'] == '':
+            errors['appname'] = 'You must provide an application name'
+
         if values['apikey'] == '':
             errors['apikey'] = 'You must provide your Prowl API key'
         elif not self.prowl_verify(values['apikey']):
@@ -54,7 +57,7 @@ class Plugin(indigo.PluginBase):
             'priority' : action.props.get('priority', '0'),
             'event' : action.props.get('title', ''),
             'description' : action.props.get('message', ''),
-            'application' : 'Indigo'
+            'application' : self.pluginPrefs.get('appname', 'Indigo')
         })
         self.debugLog('notify: ' + params)
 
