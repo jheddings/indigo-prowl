@@ -31,7 +31,21 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def validateActionConfigUi(self, values, typeId, devId):
-        return (True, values)
+        errors = indigo.Dict()
+
+        priority = values['priority'];
+        desc = 'Prowl [' + priority + ']: '
+
+        title = values['title'];
+        if (title and len(title) > 0):
+            desc += title + '-'
+
+        message = values['message'];
+        desc += message
+
+        values['description'] = desc
+
+        return ((len(errors) == 0), values, errors)
 
     #---------------------------------------------------------------------------
     def notify(self, action):
@@ -39,7 +53,7 @@ class Plugin(indigo.PluginBase):
             'apikey' : self.pluginPrefs.get('apikey', None),
             'priority' : action.props.get('priority', '0'),
             'event' : action.props.get('title', ''),
-            'description' : action.props.get('description', ''),
+            'description' : action.props.get('message', ''),
             'application' : 'Indigo'
         })
         self.debugLog('notify: ' + params)
