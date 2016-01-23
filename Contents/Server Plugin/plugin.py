@@ -84,12 +84,16 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def prowl_std_response(self, resp):
-        self.debugLog(str(resp.status) + ':' + resp.reason)
+        self.debugLog('HTTP response - ' + str(resp.status) + ':' + resp.reason)
 
-        #TODO log remaining calls on success
-        #self.debugLog(resp.read())
+        root = ET.fromstring(resp.read())
+        respval = root[0]
 
-        #TODO use self.errorLog for errors
+        if (respval.tag == 'success'):
+            remain = respval.attrib['remaining']
+            self.debugLog('success: ' + remain + ' remaining')
+        else:
+            self.errorLog('error: ' + respval.text)
 
         return (resp.status == 200)
 
