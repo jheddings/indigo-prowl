@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<Actions>
+  <Action id="notify" uiPath="NotificationActions">
+    <Name>Prowl Notify</Name>
+    <CallbackMethod>notify</CallbackMethod>
+    <ConfigUI>
+      <Field id="title" type="textfield">
+        <Label>Title:</Label>
+      </Field>
+      <Field id="description" type="textfield">
+        <Label>Description:</Label>
+      </Field>
+      <Field id="priority" type="menu" defaultValue="0">
+        <Label>Priority:</Label>
+        <List>
+          <Option value="-2">Very Low</Option>
+          <Option value="-1">Low</Option>
+          <Option value="0">Normal</Option>
+          <Option value="1">High</Option>
+          <Option value="2">Emergency</Option>
+        </List>
+      </Field>
+    </ConfigUI>
+  </Action>
+</Actions>
