@@ -85,16 +85,18 @@ class Plugin(indigo.PluginBase):
     def prowl_verify(self, apikey):
         params = urllib.urlencode({'apikey': apikey})
         self.debugLog('verify: ' + params)
-        verify = False
+        verified = False
 
         try:
             conn = httplib.HTTPConnection('api.prowlapp.com')
             conn.request('GET', '/publicapi/verify?' + params)
             resp = conn.getresponse()
-            verify = self.prowl_std_response(resp)
+            verified = self.prowl_std_response(resp)
 
         except Exception, e:
             self.errorLog(str(e))
+
+        return verified
 
     #---------------------------------------------------------------------------
     def prowl_std_response(self, resp):
