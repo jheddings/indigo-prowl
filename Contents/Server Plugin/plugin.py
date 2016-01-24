@@ -48,7 +48,7 @@ class Plugin(indigo.PluginBase):
 
         if values['apikey'] == '':
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif not self.prowl_verify(values['apikey']):
+        elif not self.prowlVerify(values['apikey']):
             errors['apikey'] = 'Invalid API key'
 
         return ((len(errors) == 0), values, errors)
@@ -100,13 +100,13 @@ class Plugin(indigo.PluginBase):
             conn = httplib.HTTPConnection('api.prowlapp.com')
             conn.request('POST', '/publicapi/add', params, headers)
             resp = conn.getresponse()
-            self.prowl_std_response(resp)
+            self.processStdResponse(resp)
 
         except Exception, e:
             self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
-    def prowl_verify(self, apikey):
+    def prowlVerify(self, apikey):
         params = urllib.urlencode({'apikey': apikey})
         self.debugLog('verify: ' + params)
         verified = False
@@ -115,7 +115,7 @@ class Plugin(indigo.PluginBase):
             conn = httplib.HTTPConnection('api.prowlapp.com')
             conn.request('GET', '/publicapi/verify?' + params)
             resp = conn.getresponse()
-            verified = self.prowl_std_response(resp)
+            verified = self.processStdResponse(resp)
 
         except Exception, e:
             self.errorLog(str(e))
@@ -123,7 +123,7 @@ class Plugin(indigo.PluginBase):
         return verified
 
     #---------------------------------------------------------------------------
-    def prowl_std_response(self, resp):
+    def processStdResponse(self, resp):
         self.debugLog('HTTP response - ' + str(resp.status) + ':' + resp.reason)
 
         root = ET.fromstring(resp.read())
