@@ -54,9 +54,9 @@ The message must include a body, specified in the 'Message' property.
 
 Your message may also provide a 'Priority', which determines how the message is handled by Prowl.
 
-Both the 'Title' and 'Message' allow standard variable and state substitutions.  Simply insert %%v:VARIABLEID%% anywhere in the text
-as many times as you want. VARIABLEID is the variable's numeric id as found in the UI. Likewise, you can substitute device state values
-by inserting %%d:DEVICEID:STATEKEY%% where DEVICEID is the device's numeric id and the STATEKEY is the state identifier as found in the
+Both the 'Title' and 'Message' allow standard variable and state substitutions.  Simply insert `%%v:VARIABLEID%%` anywhere in the text
+as many times as you want. `VARIABLEID` is the variable's numeric id as found in the UI. Likewise, you can substitute device state values
+by inserting `%%d:DEVICEID:STATEKEY%%` where `DEVICEID` is the device's numeric id and the STATEKEY is the state identifier as found in the
 doucumentation for built-in devices and in the Custom States tile in the control area of the Home screen for custom plugin devices.
 
 ## Updates
