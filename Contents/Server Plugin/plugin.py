@@ -3,6 +3,8 @@
 import httplib, urllib
 import xml.etree.ElementTree as ET
 
+import updater
+
 ################################################################################
 class Plugin(indigo.PluginBase):
 
@@ -17,7 +19,14 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def updatePlugin(self):
-        self.debugLog('Looking for update')
+        currentVersion = str(self.pluginVersion)
+        indigo.server.log('Checking for plugin update (current version: ' + currentVersion + ')')
+
+        try:
+            updater.update('jheddings', 'indigo-prowl', currentVersion, plugin=self)
+        except Exception, e:
+            self.errorLog('An error occured during update %s' % str(e))
+
         #plugin.restart(waitUntilDone=False)
 
     #---------------------------------------------------------------------------
