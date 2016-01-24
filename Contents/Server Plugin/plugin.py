@@ -68,14 +68,22 @@ class Plugin(indigo.PluginBase):
         header = 'Prowl [' + priority + ']: '
 
         title = values.get('title', '')
-        if (title and len(title) > 0):
-            header += title + '-'
+        if (len(title) > 0):
+            subst = self.substitute(title, validateOnly=True)
+            if (subst[0]):
+                header += title + '-'
+            else:
+                errors['title'] = subst[1]
 
         message = values.get('message', '')
         if (len(message) == 0):
             errors['message'] = 'You must provide a message'
         else:
-            values['description'] = header + message
+            subst = self.substitute(message, validateOnly=True)
+            if (subst[0]):
+                values['description'] = header + message
+            else:
+                errors['message'] = subst[1]
 
         return ((len(errors) == 0), values, errors)
 
