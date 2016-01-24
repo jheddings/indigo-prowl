@@ -19,23 +19,13 @@ import json
 import httplib, urllib
 
 ################################################################################
-def has_update(owner, repo, currentVersion, plugin=None):
-    latestReleaseAPI = '/repos/' + owner + '/' + repo + '/releases/latest'
-    if plugin: plugin.debugLog(latestReleaseAPI)
+# returns the URL for an update if there is one
+def getUpdate(owner, repo, currentVersion, plugin=None):
+    release = getLatestRelease(owner, repo, plugin)
 
-    headers = {
-        'User-Agent': 'Indigo-Plugin-Updater',
-        'Accept': 'application/vnd.github.v3+json'
-    }
-
-    try:
-        conn = httplib.HTTPSConnection('api.github.com')
-        conn.request('GET', latestReleaseAPI, None, headers)
-        resp = conn.getresponse()
-        release = json.loads(resp.read())
-
-    except Exception, e:
-        if plugin: plugin.errorLog(str(e))
+    if (release == None):
+        plugin.debugLog('Could not find the latest release')
+        return None
 
     latestVersion = release['tag_name'].lstrip('v')
     latestReleaseURL = release['html_url']
@@ -45,6 +35,28 @@ def has_update(owner, repo, currentVersion, plugin=None):
 
     if (ver(latestVersion) > ver(currentVersion)):
         return latestReleaseURL
+
+    return None
+
+################################################################################
+# returns the latest release information from a given user / repo
+def getLatestRelease(owner, repo, plugin=None):
+    apiPath = '/repos/' + owner + '/' + repo + '/releases/latest'
+    if plugin: plugin.debugLog(apiPath)
+
+    headers = {
+        'User-Agent': 'Indigo-Plugin-Updater',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+
+    try:
+        conn = httplib.HTTPSConnection('api.github.com')
+        conn.request('GET', apiPath, None, headers)
+        resp = conn.getresponse()
+        return json.loads(resp.read())
+
+    except Exception, e:
+        if plugin: plugin.errorLog(str(e))
 
     return None
 

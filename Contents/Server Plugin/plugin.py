@@ -23,15 +23,16 @@ class Plugin(indigo.PluginBase):
         indigo.server.log('Checking for updates')
 
         try:
-            isnew = updater.has_update('jheddings', 'indigo-prowl', currentVersion, plugin=self)
+            update = updater.getUpdate('jheddings', 'indigo-prowl', currentVersion, plugin=self)
         except Exception, e:
             self.errorLog('An error occured during update %s' % str(e))
+            update = None
 
-        if (isnew == None):
+        if (update == None):
             indigo.server.log('No updates are available')
         else:
             self.errorLog('A new version is available:')
-            self.errorLog(isnew)
+            self.errorLog(update)
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
