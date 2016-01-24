@@ -18,6 +18,7 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     def updatePlugin(self):
         self.debugLog('Looking for update')
+        #plugin.restart(waitUntilDone=False)
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
