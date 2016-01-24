@@ -18,16 +18,20 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__del__(self)
 
     #---------------------------------------------------------------------------
-    def updatePlugin(self):
+    def checkForUpdates(self):
         currentVersion = str(self.pluginVersion)
-        indigo.server.log('Checking for plugin update (current version: ' + currentVersion + ')')
+        indigo.server.log('Checking for updates')
 
         try:
-            updater.update('jheddings', 'indigo-prowl', currentVersion, plugin=self)
+            isnew = updater.has_update('jheddings', 'indigo-prowl', currentVersion, plugin=self)
         except Exception, e:
             self.errorLog('An error occured during update %s' % str(e))
 
-        #plugin.restart(waitUntilDone=False)
+        if (isnew == None):
+            indigo.server.log('No updates are available')
+        else:
+            self.errorLog('A new version is available:')
+            self.errorLog(isnew)
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
