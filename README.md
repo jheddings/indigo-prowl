@@ -53,3 +53,8 @@ value you'd like.  It is not required.
 The message must include a body, specified in the 'Message' property.
 
 Your message may also provide a 'Priority', which determines how the message is handled by Prowl.
+
+## Updates
+
+From the plugin's menu, select "Check for Updates" to look for newer releases of the plugin.  Any updates will be displayed in the
+Indigo event log.
