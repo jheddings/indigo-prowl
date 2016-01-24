@@ -79,11 +79,14 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def notify(self, action):
+        title = self.substitute(action.props.get('title', ''))
+        message = self.substitute(action.props.get('message', ''))
+
         params = urllib.urlencode({
             'apikey' : self.pluginPrefs.get('apikey', None),
             'priority' : action.props.get('priority', '0'),
-            'event' : action.props.get('title', ''),
-            'description' : action.props.get('message', ''),
+            'event' : title,
+            'description' : message,
             'application' : self.pluginPrefs.get('appname', 'Indigo')
         })
         self.debugLog('notify: ' + params)

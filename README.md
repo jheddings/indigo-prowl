@@ -44,7 +44,7 @@ rather noisy if left on all the time.
 
 ## Usage
 
-After you have installed and configured the plugin, you can start to send messages as actions.  For the type of action, select 
+After you have installed and configured the plugin, you can start to send messages as actions.  For the type of action, select
 'Notification Actions' and 'Prowl Notify'.  Then press 'Edit Action Settings' and you will be prompted for the following information.
 
 Your message may include a 'Title', which will be displayed on the notification.  This could be an event type, such as Weather, or any
@@ -53,6 +53,11 @@ value you'd like.  It is not required.
 The message must include a body, specified in the 'Message' property.
 
 Your message may also provide a 'Priority', which determines how the message is handled by Prowl.
+
+Both the 'Title' and 'Message' allow standard variable and state substitutions.  Simply insert %%v:VARIABLEID%% anywhere in the text
+as many times as you want. VARIABLEID is the variable's numeric id as found in the UI. Likewise, you can substitute device state values
+by inserting %%d:DEVICEID:STATEKEY%% where DEVICEID is the device's numeric id and the STATEKEY is the state identifier as found in the
+doucumentation for built-in devices and in the Custom States tile in the control area of the Home screen for custom plugin devices.
 
 ## Updates
 
