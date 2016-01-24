@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <PluginConfig>
+  <SupportURL>https://github.com/jheddings/indigo-prowl</SupportURL>
+
   <Field id="appname" type="textfield" defaultValue="Indigo">
     <Label>Application Name:</Label>
   </Field>
