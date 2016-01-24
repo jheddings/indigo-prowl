@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
 <MenuItems>
+  <MenuItem id="updatePlugin">
+    <Name>Update Plugin</Name>
+    <CallbackMethod>updatePlugin</CallbackMethod>
+  </MenuItem>
   <MenuItem id="toggleDebugging">
     <Name>Toggle Debugging</Name>
     <CallbackMethod>toggleDebugging</CallbackMethod>
