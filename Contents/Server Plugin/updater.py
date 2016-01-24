@@ -55,11 +55,11 @@ def getLatestRelease(owner, repo, plugin=None):
         resp = conn.getresponse()
         return json.loads(resp.read())
 
-    except Exception, e:
+    except (Exception, e):
         if plugin: plugin.errorLog(str(e))
 
     return None
 
 ################################################################################
 # maps the standard version string as a tuple for comparrison
-def ver(vstr): return tuple(map(int, (vstr.split("."))))
+def ver(vstr): return tuple(map(int, (vstr.split('.'))))

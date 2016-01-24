@@ -24,7 +24,7 @@ class Plugin(indigo.PluginBase):
 
         try:
             update = updater.getUpdate('jheddings', 'indigo-prowl', currentVersion, plugin=self)
-        except Exception, e:
+        except (Exception, e):
             self.errorLog('An error occured during update %s' % str(e))
             update = None
 
@@ -43,19 +43,21 @@ class Plugin(indigo.PluginBase):
     def validatePrefsConfigUi(self, values):
         errors = indigo.Dict()
 
-        if values['appname'] == '':
+        appname = values.get('appname', '')
+        if (len(appname) == 0):
             errors['appname'] = 'You must provide an application name'
 
-        if values['apikey'] == '':
+        apikey = values.get('apikey', '')
+        if (len(apikey) == 0):
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif not self.prowlVerify(values['apikey']):
+        elif (not self.prowlVerify(apikey)):
             errors['apikey'] = 'Invalid API key'
 
         return ((len(errors) == 0), values, errors)
 
     #---------------------------------------------------------------------------
     def closedPrefsConfigUi(self, values, canceled):
-        if not canceled:
+        if (not canceled):
             self.debug = values.get('debug', False)
 
     #---------------------------------------------------------------------------
@@ -65,14 +67,14 @@ class Plugin(indigo.PluginBase):
         priority = values['priority'];
         header = 'Prowl [' + priority + ']: '
 
-        title = values['title'];
+        title = values.get('title', '')
         if (title and len(title) > 0):
             header += title + '-'
 
-        if values['message'] == '':
-            errors['message'] = 'You must provide message'
+        message = values.get('message', '')
+        if (len(message) == 0):
+            errors['message'] = 'You must provide a message'
         else:
-            message = values['message'];
             values['description'] = header + message
 
         return ((len(errors) == 0), values, errors)
@@ -102,7 +104,7 @@ class Plugin(indigo.PluginBase):
             resp = conn.getresponse()
             self.processStdResponse(resp)
 
-        except Exception, e:
+        except (Exception, e):
             self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
@@ -117,7 +119,7 @@ class Plugin(indigo.PluginBase):
             resp = conn.getresponse()
             verified = self.processStdResponse(resp)
 
-        except Exception, e:
+        except (Exception, e):
             self.errorLog(str(e))
 
         return verified
@@ -131,7 +133,7 @@ class Plugin(indigo.PluginBase):
 
         if (content.tag == 'success'):
             remain = content.attrib['remaining']
-            self.debugLog('success: ' + remain + ' remaining')
+            self.debugLog('success: ' + remain + ' calls remaining')
         elif (content.tag == 'error'):
             self.errorLog('error: ' + content.text)
         else:
