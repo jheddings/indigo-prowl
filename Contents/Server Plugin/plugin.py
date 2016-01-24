@@ -19,6 +19,11 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__del__(self)
 
     #---------------------------------------------------------------------------
+    def toggleDebugging(self):
+        self.debug = not self.debug
+        self.pluginPrefs['debug'] = self.debug
+
+    #---------------------------------------------------------------------------
     def validatePrefsConfigUi(self, values):
         errors = indigo.Dict()
 
