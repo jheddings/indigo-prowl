@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PluginConfig>
-  <Field id="appname" type="textfield" default="Indigo">
+  <Field id="appname" type="textfield" defaultValue="Indigo">
     <Label>Application Name:</Label>
   </Field>
 
