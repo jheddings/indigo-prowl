@@ -38,6 +38,11 @@ class Plugin(indigo.PluginBase):
         return ((len(errors) == 0), values, errors)
 
     #---------------------------------------------------------------------------
+    def closedPrefsConfigUi(self, values, canceled):
+        if not canceled:
+            self.debug = values.get('debug', False)
+
+    #---------------------------------------------------------------------------
     def validateActionConfigUi(self, values, typeId, devId):
         errors = indigo.Dict()
 
