@@ -42,16 +42,17 @@ class Plugin(indigo.PluginBase):
         errors = indigo.Dict()
 
         priority = values['priority'];
-        desc = 'Prowl [' + priority + ']: '
+        header = 'Prowl [' + priority + ']: '
 
         title = values['title'];
         if (title and len(title) > 0):
-            desc += title + '-'
+            header += title + '-'
 
-        message = values['message'];
-        desc += message
-
-        values['description'] = desc
+        if values['message'] == '':
+            errors['message'] = 'You must provide message'
+        else:
+            message = values['message'];
+            values['description'] = header + message
 
         return ((len(errors) == 0), values, errors)
 
@@ -71,34 +72,44 @@ class Plugin(indigo.PluginBase):
             'Accept': 'text/plain'
         }
 
-        conn = httplib.HTTPConnection('api.prowlapp.com')
-        conn.request('POST', '/publicapi/add', params, headers)
-        resp = conn.getresponse()
-        self.prowl_std_response(resp)
+        try:
+            conn = httplib.HTTPConnection('api.prowlapp.com')
+            conn.request('POST', '/publicapi/add', params, headers)
+            resp = conn.getresponse()
+            self.prowl_std_response(resp)
+
+        except Exception, e:
+            self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
     def prowl_verify(self, apikey):
         params = urllib.urlencode({'apikey': apikey})
         self.debugLog('verify: ' + params)
+        verify = False
 
-        conn = httplib.HTTPConnection('api.prowlapp.com')
-        conn.request('GET', '/publicapi/verify?' + params)
-        resp = conn.getresponse()
+        try:
+            conn = httplib.HTTPConnection('api.prowlapp.com')
+            conn.request('GET', '/publicapi/verify?' + params)
+            resp = conn.getresponse()
+            verify = self.prowl_std_response(resp)
 
-        return self.prowl_std_response(resp)
+        except Exception, e:
+            self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
     def prowl_std_response(self, resp):
         self.debugLog('HTTP response - ' + str(resp.status) + ':' + resp.reason)
 
         root = ET.fromstring(resp.read())
-        respval = root[0]
+        content = root[0]
 
-        if (respval.tag == 'success'):
-            remain = respval.attrib['remaining']
+        if (content.tag == 'success'):
+            remain = content.attrib['remaining']
             self.debugLog('success: ' + remain + ' remaining')
+        elif (content.tag == 'error'):
+            self.errorLog('error: ' + content.text)
         else:
-            self.errorLog('error: ' + respval.text)
+            raise Exception('unknown response', content.tag)
 
         return (resp.status == 200)
 
