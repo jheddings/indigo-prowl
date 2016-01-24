@@ -5,9 +5,15 @@
   <Field id="appname" type="textfield" defaultValue="Indigo">
     <Label>Application Name:</Label>
   </Field>
+  <Field id="appnameHelp" type="label" fontSize="mini" alignWithControl="true">
+    <Label>(required) the name of your application, sent with the notification</Label>
+  </Field>
 
   <Field id="apikey" type="textfield">
     <Label>Prowl API Key:</Label>
+  </Field>
+  <Field id="apikeyHelp" type="label" fontSize="mini" alignWithControl="true">
+    <Label>(required) your Prowl API key</Label>
   </Field>
 
   <Field id="separator001" type="separator" />
