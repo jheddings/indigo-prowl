@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.5
 
 import httplib, urllib
 import xml.etree.ElementTree as ET
@@ -14,6 +14,10 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     def __del__(self):
         indigo.PluginBase.__del__(self)
+
+    #---------------------------------------------------------------------------
+    def updatePlugin(self):
+        self.debugLog('Looking for update')
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
