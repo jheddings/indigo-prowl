@@ -3,9 +3,6 @@
 import httplib, urllib
 import xml.etree.ElementTree as ET
 
-kProwlAPI = 'https://api.prowlapp.com/publicapi/'
-kProwlProviderKey = 'd96ce35a294c10c8b5683645f55ad23275a82241'
-
 ################################################################################
 class Plugin(indigo.PluginBase):
 
