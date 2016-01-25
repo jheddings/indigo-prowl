@@ -55,7 +55,7 @@ def getLatestRelease(owner, repo, plugin=None):
         resp = conn.getresponse()
         return json.loads(resp.read())
 
-    except (Exception, e):
+    except Exception as e:
         if plugin: plugin.errorLog(str(e))
 
     return None

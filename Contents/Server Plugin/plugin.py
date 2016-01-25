@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 
-import httplib, urllib
+import os, httplib, urllib, plistlib
 import xml.etree.ElementTree as ET
 
 import updater
@@ -12,10 +12,42 @@ class Plugin(indigo.PluginBase):
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.debug = pluginPrefs.get('debug', False)
+        self.pluginPath = self.getPluginPath()
 
     #---------------------------------------------------------------------------
     def __del__(self):
         indigo.PluginBase.__del__(self)
+
+    #---------------------------------------------------------------------------
+    def getPluginPath(self):
+        self.debugLog('Looking for plugin installation: %s' % self.pluginId)
+
+        path = os.path.join(indigo.server.getInstallFolderPath(), 'Plugins', self.pluginDisplayName + '.indigoPlugin')
+        self.debugLog('Calculated plugin path: %s' % path)
+
+        plistFile = os.path.join(path, 'Contents', 'Info.plist')
+        self.debugLog('Plugin info file: %s' % plistFile)
+
+        if (not os.path.isfile(plistFile)):
+            self.errorLog('File not found: %s' % plistFile)
+            return None
+
+        try:
+            plist = plistlib.readPlist(plistFile)
+            pluginId = plist.get('CFBundleIdentifier', None)
+            self.debugLog('Found plugin: %s' % pluginId)
+
+            if (self.pluginId == pluginId):
+                self.debugLog('Verified plugin path: %s' % path)
+            else:
+                self.errorLog('Incorrect plugin ID in path: %s found, %s expected' % ( pluginId, self.pluginId ))
+                path = None
+
+        except Exception as e:
+            self.errorLog('Error reading Info.plist: %s' % str(e))
+            path = None
+
+        return path
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
@@ -24,7 +56,7 @@ class Plugin(indigo.PluginBase):
 
         try:
             update = updater.getUpdate('jheddings', 'indigo-prowl', currentVersion, plugin=self)
-        except (Exception, e):
+        except Exception as e:
             self.errorLog('An error occured during update %s' % str(e))
             update = None
 
@@ -112,7 +144,7 @@ class Plugin(indigo.PluginBase):
             resp = conn.getresponse()
             self.processStdResponse(resp)
 
-        except (Exception, e):
+        except Exception as e:
             self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
@@ -127,7 +159,7 @@ class Plugin(indigo.PluginBase):
             resp = conn.getresponse()
             verified = self.processStdResponse(resp)
 
-        except (Exception, e):
+        except Exception as e:
             self.errorLog(str(e))
 
         return verified
