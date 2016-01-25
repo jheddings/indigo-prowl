@@ -16,7 +16,7 @@
 # also, only full releases will be used...  draft and pre-releases are not considered
 
 import json
-import httplib, urllib
+import httplib
 
 ################################################################################
 # returns the URL for an update if there is one
