@@ -27,6 +27,9 @@ def getUpdate(owner, repo, currentVersion, plugin=None):
         plugin.debugLog('Could not find the latest release')
         return None
 
+    # TODO we should have some better error checking in here...
+
+    # assume the tag is the release version
     latestVersion = release['tag_name'].lstrip('v')
     latestReleaseURL = release['html_url']
 
