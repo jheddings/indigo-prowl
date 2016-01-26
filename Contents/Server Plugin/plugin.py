@@ -3,7 +3,6 @@
 import os, httplib, urllib, plistlib
 import xml.etree.ElementTree as ET
 
-import ghupdater
 from ghupdater import GitHubUpdater
 
 ################################################################################
@@ -55,13 +54,9 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
-        self._log('Checking for updates')
+        self._log('Checking for updates...')
 
-        try:
-            update = self.updater.getUpdate(str(self.pluginVersion))
-        except Exception as e:
-            self._error('An error occured during update %s' % str(e))
-            update = None
+        update = self.updater.checkForUpdate(str(self.pluginVersion))
 
         if (update == None):
             self._log('No updates are available')

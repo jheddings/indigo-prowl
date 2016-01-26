@@ -28,26 +28,33 @@ class GitHubUpdater(object):
 
     #---------------------------------------------------------------------------
     # returns the URL for an update if there is one
-    def getUpdate(self, currentVersion):
-        release = self.getLatestRelease()
+    def checkForUpdate(self, currentVersion):
+        update = self.getUpdate(currentVersion)
 
-        if (release == None):
+        if (update == None):
+            self._debug('No update found')
+            return None
+
+        return update['html_url']
+
+    #---------------------------------------------------------------------------
+    # returns the update package, if there is one
+    def getUpdate(self, currentVersion):
+        self._debug('Current version is: %s' % currentVersion)
+        update = self.getLatestRelease()
+
+        if (update == None):
             self._debug('No release available')
             return None
 
-        # TODO we should have some better error checking in here...
-
         # assume the tag is the release version
-        latestVersion = release['tag_name'].lstrip('v')
-        latestReleaseURL = release['html_url']
-
+        latestVersion = update['tag_name'].lstrip('v')
         self._debug('Latest release is: %s' % latestVersion)
-        self._debug(latestReleaseURL)
 
-        if (ver(latestVersion) > ver(currentVersion)):
-            return latestReleaseURL
+        if (ver(currentVersion) >= ver(latestVersion)):
+            return None
 
-        return None
+        return update
 
     #---------------------------------------------------------------------------
     # returns the latest release information from a given user / repo
@@ -67,13 +74,8 @@ class GitHubUpdater(object):
             conn.request('GET', apiPath, None, headers)
             resp = conn.getresponse()
 
-            # maybe check out https://developer.github.com/v3/rate_limit/
-            rateLimit = int(resp.getheader('X-RateLimit-Limit', -1))
-            rateRemain = int(resp.getheader('X-RateLimit-Remaining', -1))
-            rateReset = int(resp.getheader('X-RateLimit-Reset', -1))
-
             self._debug('HTTP %d %s' % (resp.status, resp.reason))
-            self._debug('Rate Limit: %d/%d' % (rateRemain, rateLimit))
+            self._logRateLimit(resp)
 
             if (resp.status == 200):
                 release = json.loads(resp.read())
@@ -84,6 +86,15 @@ class GitHubUpdater(object):
             self._error(str(e))
 
         return release
+
+    #---------------------------------------------------------------------------
+    def _logRateLimit(self, resp):
+        # maybe check out https://developer.github.com/v3/rate_limit/
+        rateLimit = int(resp.getheader('X-RateLimit-Limit', -1))
+        rateRemain = int(resp.getheader('X-RateLimit-Remaining', -1))
+        rateReset = int(resp.getheader('X-RateLimit-Reset', -1))
+
+        self._debug('Rate Limit: %d/%d' % (rateRemain, rateLimit))
 
     #---------------------------------------------------------------------------
     # convenience method for debug messages
