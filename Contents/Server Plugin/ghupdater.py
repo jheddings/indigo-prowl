@@ -17,7 +17,9 @@
 
 import json
 import httplib
+import indigo
 
+################################################################################
 class GitHubUpdater(object):
 
     #---------------------------------------------------------------------------
@@ -29,18 +31,23 @@ class GitHubUpdater(object):
     #---------------------------------------------------------------------------
     # returns the URL for an update if there is one
     def checkForUpdate(self, currentVersion):
+        self._log('Checking for updates...')
+
         update = self.getUpdate(currentVersion)
 
         if (update == None):
-            self._debug('No update found')
-            return None
+            self._log('No updates are available')
+            return False
 
-        return update['html_url']
+        self._error('A new version is available: %s' % update['html_url'])
+
+        return True
 
     #---------------------------------------------------------------------------
     # returns the update package, if there is one
     def getUpdate(self, currentVersion):
         self._debug('Current version is: %s' % currentVersion)
+
         update = self.getLatestRelease()
 
         if (update == None):
@@ -95,6 +102,11 @@ class GitHubUpdater(object):
         rateReset = int(resp.getheader('X-RateLimit-Reset', -1))
 
         self._debug('Rate Limit: %d/%d' % (rateRemain, rateLimit))
+
+    #---------------------------------------------------------------------------
+    # convenience method for log messages
+    def _log(self, msg):
+        indigo.server.log(msg)
 
     #---------------------------------------------------------------------------
     # convenience method for debug messages

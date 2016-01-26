@@ -54,15 +54,7 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
-        self._log('Checking for updates...')
-
-        update = self.updater.checkForUpdate(str(self.pluginVersion))
-
-        if (update == None):
-            self._log('No updates are available')
-        else:
-            self._error('A new version is available:')
-            self._error(update)
+        self.updater.checkForUpdate(str(self.pluginVersion))
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
