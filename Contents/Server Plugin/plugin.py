@@ -3,7 +3,7 @@
 import os, httplib, urllib, plistlib
 import xml.etree.ElementTree as ET
 
-from ghupdater import GitHubPluginUpdater
+from ghpu import GitHubPluginUpdater
 
 ################################################################################
 class Plugin(indigo.PluginBase):
