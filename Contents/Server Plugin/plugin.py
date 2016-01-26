@@ -3,7 +3,8 @@
 import os, httplib, urllib, plistlib
 import xml.etree.ElementTree as ET
 
-import updater
+import ghupdater
+from ghupdater import GitHubUpdater
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -13,6 +14,7 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.debug = pluginPrefs.get('debug', False)
         self.pluginPath = self.getPluginPath()
+        self.updater = GitHubUpdater('jheddings', 'indigo-prowl', self)
 
     #---------------------------------------------------------------------------
     def __del__(self):
@@ -20,53 +22,52 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def getPluginPath(self):
-        self.debugLog('Looking for plugin installation: %s' % self.pluginId)
+        self._debug('Looking for plugin installation: %s' % self.pluginId)
 
         # assume the plugin is installed under the standard installation folder...
         path = os.path.join(indigo.server.getInstallFolderPath(), 'Plugins', self.pluginDisplayName + '.indigoPlugin')
-        self.debugLog('Calculated plugin path: %s' % path)
+        self._debug('Calculated plugin path: %s' % path)
 
         plistFile = os.path.join(path, 'Contents', 'Info.plist')
-        self.debugLog('Plugin info file: %s' % plistFile)
+        self._debug('Plugin info file: %s' % plistFile)
 
         if (not os.path.isfile(plistFile)):
-            self.errorLog('File not found: %s' % plistFile)
+            self._error('File not found: %s' % plistFile)
             return None
 
         try:
             # make sure the plugin is the by reading the info file
             plist = plistlib.readPlist(plistFile)
             pluginId = plist.get('CFBundleIdentifier', None)
-            self.debugLog('Found plugin: %s' % pluginId)
+            self._debug('Found plugin: %s' % pluginId)
 
             if (self.pluginId == pluginId):
-                self.debugLog('Verified plugin path: %s' % path)
+                self._debug('Verified plugin path: %s' % path)
             else:
-                self.errorLog('Incorrect plugin ID in path: %s found, %s expected' % ( pluginId, self.pluginId ))
+                self._error('Incorrect plugin ID in path: %s found, %s expected' % ( pluginId, self.pluginId ))
                 path = None
 
         except Exception as e:
-            self.errorLog('Error reading Info.plist: %s' % str(e))
+            self._error('Error reading Info.plist: %s' % str(e))
             path = None
 
         return path
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
-        indigo.server.log('Checking for updates')
+        self._log('Checking for updates')
 
         try:
-            currentVersion = str(self.pluginVersion)
-            update = updater.getUpdate('jheddings', 'indigo-prowl', currentVersion, plugin=self)
+            update = self.updater.getUpdate(str(self.pluginVersion))
         except Exception as e:
-            self.errorLog('An error occured during update %s' % str(e))
+            self._error('An error occured during update %s' % str(e))
             update = None
 
         if (update == None):
-            indigo.server.log('No updates are available')
+            self._log('No updates are available')
         else:
-            self.errorLog('A new version is available:')
-            self.errorLog(update)
+            self._error('A new version is available:')
+            self._error(update)
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
@@ -138,7 +139,7 @@ class Plugin(indigo.PluginBase):
             'description' : message,
             'application' : self.pluginPrefs.get('appname', 'Indigo')
         })
-        self.debugLog('notify: ' + params)
+        self._debug('notify: ' + params)
 
         # Prowl won't accept the POST unless it carries the right content type
         headers = {
@@ -154,13 +155,13 @@ class Plugin(indigo.PluginBase):
             self.processStdResponse(resp)
 
         except Exception as e:
-            self.errorLog(str(e))
+            self._error(str(e))
 
     #---------------------------------------------------------------------------
     # verify the given API key is valid with Prowl
     def prowlVerify(self, apikey):
         params = urllib.urlencode({ 'apikey': apikey })
-        self.debugLog('verify: ' + params)
+        self._debug('verify: ' + params)
         verified = False
 
         try:
@@ -170,28 +171,43 @@ class Plugin(indigo.PluginBase):
             verified = self.processStdResponse(resp)
 
         except Exception as e:
-            self.errorLog(str(e))
+            self._error(str(e))
 
         return verified
 
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
     def processStdResponse(self, resp):
-        self.debugLog('HTTP %d %s' % (resp.status, resp.reason))
+        self._debug('HTTP %d %s' % (resp.status, resp.reason))
 
         root = ET.fromstring(resp.read())
         content = root[0]
 
         if (content.tag == 'success'):
             remain = content.attrib['remaining']
-            self.debugLog('success: ' + remain + ' calls remaining')
+            self._debug('success: ' + remain + ' calls remaining')
 
         elif (content.tag == 'error'):
-            self.errorLog('error: ' + content.text)
+            self._error('error: ' + content.text)
 
         else:
             # just in case something strange comes along...
             raise Exception('unknown response', content.tag)
 
         return (resp.status == 200)
+
+    #---------------------------------------------------------------------------
+    # convenience method for logging
+    def _log(self, msg):
+        indigo.server.log(msg)
+
+    #---------------------------------------------------------------------------
+    # convenience method for debug messages
+    def _debug(self, msg):
+        self.debugLog(msg)
+
+    #---------------------------------------------------------------------------
+    # convenience method for error messages
+    def _error(self, msg):
+        self.errorLog(msg)
 
