@@ -177,7 +177,7 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
     def processStdResponse(self, resp):
-        self.debugLog('HTTP response - ' + str(resp.status) + ':' + resp.reason)
+        self.debugLog('HTTP %d %s' % (resp.status, resp.reason))
 
         root = ET.fromstring(resp.read())
         content = root[0]

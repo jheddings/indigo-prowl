@@ -24,7 +24,7 @@ def getUpdate(owner, repo, currentVersion, plugin=None):
     release = getLatestRelease(owner, repo, plugin)
 
     if (release == None):
-        plugin.debugLog('Could not find the latest release')
+        if plugin: plugin.debugLog('No release available for %s/%s' % (owner, repo))
         return None
 
     # TODO we should have some better error checking in here...
@@ -52,16 +52,29 @@ def getLatestRelease(owner, repo, plugin=None):
         'Accept': 'application/vnd.github.v3+json'
     }
 
+    release = None
+
     try:
         conn = httplib.HTTPSConnection('api.github.com')
         conn.request('GET', apiPath, None, headers)
         resp = conn.getresponse()
-        return json.loads(resp.read())
+
+        rateLimit = int(resp.getheader('X-RateLimit-Limit', -1))
+        rateRemain = int(resp.getheader('X-RateLimit-Remaining', -1))
+
+        if plugin:
+            plugin.debugLog('HTTP %d %s' % (resp.status, resp.reason))
+            plugin.debugLog('Rate Limit: %d/%d' % (rateRemain, rateLimit))
+
+        if (resp.status == 200):
+            release = json.loads(resp.read())
+        elif (plugin):
+            plugin.errorLog('ERROR: %s' % resp.reason)
 
     except Exception as e:
         if plugin: plugin.errorLog(str(e))
 
-    return None
+    return release
 
 ################################################################################
 # maps the standard version string as a tuple for comparrison
