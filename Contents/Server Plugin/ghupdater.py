@@ -66,42 +66,43 @@ class GitHubPluginUpdater(object):
     #---------------------------------------------------------------------------
     # returns the latest release information from a given user / repo
     def getLatestRelease(self):
-        apiPath = '/repos/' + self.owner + '/' + self.repo + '/releases/latest'
-        self._debug(apiPath)
+        return self._GET('/repos/' + self.owner + '/' + self.repo + '/releases/latest')
+
+    #---------------------------------------------------------------------------
+    # form a GET request to api.github.com and return the parsed JSON response
+    def _GET(self, requestPath):
+        self._debug('GET %s' % requestPath)
 
         headers = {
             'User-Agent': 'Indigo-Plugin-Updater',
             'Accept': 'application/vnd.github.v3+json'
         }
 
-        release = None
+        data = None
 
         try:
             conn = httplib.HTTPSConnection('api.github.com')
-            conn.request('GET', apiPath, None, headers)
+            conn.request('GET', requestPath, None, headers)
             resp = conn.getresponse()
 
+            # maybe check out https://developer.github.com/v3/rate_limit/
+            rateLimit = int(resp.getheader('X-RateLimit-Limit', -1))
+            rateRemain = int(resp.getheader('X-RateLimit-Remaining', -1))
+            rateReset = int(resp.getheader('X-RateLimit-Reset', -1))
+
             self._debug('HTTP %d %s' % (resp.status, resp.reason))
-            self._logRateLimit(resp)
+            self._debug('Rate Limit: %d/%d' % (rateRemain, rateLimit))
 
             if (resp.status == 200):
-                release = json.loads(resp.read())
+                data = json.loads(resp.read())
             else:
                 self._error('ERROR: %s' % resp.reason)
 
         except Exception as e:
             self._error(str(e))
+            return None
 
-        return release
-
-    #---------------------------------------------------------------------------
-    def _logRateLimit(self, resp):
-        # maybe check out https://developer.github.com/v3/rate_limit/
-        rateLimit = int(resp.getheader('X-RateLimit-Limit', -1))
-        rateRemain = int(resp.getheader('X-RateLimit-Remaining', -1))
-        rateReset = int(resp.getheader('X-RateLimit-Reset', -1))
-
-        self._debug('Rate Limit: %d/%d' % (rateRemain, rateLimit))
+        return data
 
     #---------------------------------------------------------------------------
     # convenience method for log messages
