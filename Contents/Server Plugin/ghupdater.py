@@ -20,7 +20,7 @@ import httplib
 import indigo
 
 ################################################################################
-class GitHubUpdater(object):
+class GitHubUPluginpdater(object):
 
     #---------------------------------------------------------------------------
     def __init__(self, owner, repo, plugin=None):
