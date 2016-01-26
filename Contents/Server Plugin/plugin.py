@@ -134,7 +134,7 @@ class Plugin(indigo.PluginBase):
         }
 
         try:
-            conn = httplib.HTTPConnection('api.prowlapp.com')
+            conn = httplib.HTTPSConnection('api.prowlapp.com')
             conn.request('POST', '/publicapi/add', params, headers)
             resp = conn.getresponse()
 
