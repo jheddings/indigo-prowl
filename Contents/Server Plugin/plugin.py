@@ -3,7 +3,7 @@
 import os, httplib, urllib, plistlib
 import xml.etree.ElementTree as ET
 
-from ghupdater import GitHubUpdater
+from ghupdater import GitHubPluginUpdater
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -13,7 +13,7 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.debug = pluginPrefs.get('debug', False)
         self.pluginPath = self.getPluginPath()
-        self.updater = GitHubUpdater('jheddings', 'indigo-prowl', self)
+        self.updater = GitHubPluginUpdater('jheddings', 'indigo-prowl', self)
 
     #---------------------------------------------------------------------------
     def __del__(self):
