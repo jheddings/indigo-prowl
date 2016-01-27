@@ -2,8 +2,8 @@
 
 Prowl is a simple app that allows you to send arbitrary notifications to your iOS devices.
 By installing it for Indigo, you'll be able to send push notifications as actions.  Because
-this plugin adds native Prowl support to Indigo, you do not have to have Growl installed on
-your system.
+this plugin uses the Prowl API's directly, you do not have to have Growl installed on your
+system.
 
 ## Requirements
 
