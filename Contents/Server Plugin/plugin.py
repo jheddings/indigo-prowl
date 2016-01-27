@@ -26,7 +26,7 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
-        self.updater.checkForUpdate(str(self.pluginVersion))
+        self.updater.checkForUpdate()
 
     #---------------------------------------------------------------------------
     def toggleDebugging(self):
@@ -42,7 +42,7 @@ class Plugin(indigo.PluginBase):
         if (len(appname) == 0):
             errors['appname'] = 'You must provide an application name'
 
-        # an API key is required...
+        # an API key is required and must be valid...
         apikey = values.get('apikey', '')
         if (len(apikey) == 0):
             errors['apikey'] = 'You must provide your Prowl API key'
