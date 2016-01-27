@@ -12,45 +12,17 @@ class Plugin(indigo.PluginBase):
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.debug = pluginPrefs.get('debug', False)
-        self.pluginPath = self.getPluginPath()
         self.updater = GitHubPluginUpdater('jheddings', 'indigo-prowl', self)
+
+        # http://forums.indigodomo.com/viewtopic.php?p=109939#p109939
+        # os.getcwd() returns the 'Server Plugin' folder of the plugin
+        # e.g. /Library/.../Plugins/MyPlugin.indigoPlugin/Contents/Server Plugin
+        # we want to get the base folder of the plugin, so jump up two dirs
+        self.pluginPath = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
 
     #---------------------------------------------------------------------------
     def __del__(self):
         indigo.PluginBase.__del__(self)
-
-    #---------------------------------------------------------------------------
-    def getPluginPath(self):
-        self._debug('Looking for plugin installation: %s' % self.pluginId)
-
-        # assume the plugin is installed under the standard installation folder...
-        path = os.path.join(indigo.server.getInstallFolderPath(), 'Plugins', self.pluginDisplayName + '.indigoPlugin')
-        self._debug('Calculated plugin path: %s' % path)
-
-        plistFile = os.path.join(path, 'Contents', 'Info.plist')
-        self._debug('Plugin info file: %s' % plistFile)
-
-        if (not os.path.isfile(plistFile)):
-            self._error('File not found: %s' % plistFile)
-            return None
-
-        try:
-            # make sure the plugin is the by reading the info file
-            plist = plistlib.readPlist(plistFile)
-            pluginId = plist.get('CFBundleIdentifier', None)
-            self._debug('Found plugin: %s' % pluginId)
-
-            if (self.pluginId == pluginId):
-                self._debug('Verified plugin path: %s' % path)
-            else:
-                self._error('Incorrect plugin ID in path: %s found, %s expected' % ( pluginId, self.pluginId ))
-                path = None
-
-        except Exception as e:
-            self._error('Error reading Info.plist: %s' % str(e))
-            path = None
-
-        return path
 
     #---------------------------------------------------------------------------
     def checkForUpdates(self):
