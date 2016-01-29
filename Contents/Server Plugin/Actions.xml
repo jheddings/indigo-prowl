@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Actions>
   <Action id="notify" uiPath="NotificationActions">
-    <Name>Send Prowl Notification</Name>
+    <Name>Prowl Notify</Name>
     <CallbackMethod>notify</CallbackMethod>
 
     <ConfigUI>
