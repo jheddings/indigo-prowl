@@ -29,6 +29,10 @@ class Plugin(indigo.PluginBase):
         self.updater.checkForUpdate()
 
     #---------------------------------------------------------------------------
+    def updatePlugin(self):
+        self.updater.update()
+
+    #---------------------------------------------------------------------------
     def toggleDebugging(self):
         self.debug = not self.debug
         self.pluginPrefs['debug'] = self.debug
