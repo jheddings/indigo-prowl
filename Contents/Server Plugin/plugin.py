@@ -1,9 +1,9 @@
 #!/usr/bin/env python2.5
 
 import os, httplib, urllib, plistlib
-import xml.etree.ElementTree as ET
 
 from ghpu import GitHubPluginUpdater
+from xml.etree import ElementTree
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -13,12 +13,6 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.debug = pluginPrefs.get('debug', False)
         self.updater = GitHubPluginUpdater('jheddings', 'indigo-prowl', self)
-
-        # http://forums.indigodomo.com/viewtopic.php?p=109939#p109939
-        # os.getcwd() returns the 'Server Plugin' folder of the plugin
-        # e.g. /Library/.../Plugins/MyPlugin.indigoPlugin/Contents/Server Plugin
-        # we want to get the base folder of the plugin, so jump up two dirs
-        self.pluginPath = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
 
     #---------------------------------------------------------------------------
     def __del__(self):
@@ -143,7 +137,7 @@ class Plugin(indigo.PluginBase):
     def processStdResponse(self, resp):
         self._debug('HTTP %d %s' % (resp.status, resp.reason))
 
-        root = ET.fromstring(resp.read())
+        root = ElementTree.fromstring(resp.read())
         content = root[0]
 
         if (content.tag == 'success'):
