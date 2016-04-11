@@ -96,7 +96,7 @@ class Plugin(indigo.PluginBase):
             'description' : message,
             'application' : self.pluginPrefs.get('appname', 'Indigo')
         })
-        self._debug('notify: ' + params)
+        self.debugLog('notify: %s' % params)
 
         # Prowl won't accept the POST unless it carries the right content type
         headers = {
@@ -112,13 +112,13 @@ class Plugin(indigo.PluginBase):
             self.processStdResponse(resp)
 
         except Exception as e:
-            self._error(str(e))
+            self.errorLog(str(e))
 
     #---------------------------------------------------------------------------
     # verify the given API key is valid with Prowl
     def prowlVerify(self, apikey):
         params = urllib.urlencode({ 'apikey': apikey })
-        self._debug('verify: ' + params)
+        self.debugLog('verify: %s' % params)
         verified = False
 
         try:
@@ -128,43 +128,28 @@ class Plugin(indigo.PluginBase):
             verified = self.processStdResponse(resp)
 
         except Exception as e:
-            self._error(str(e))
+            self.errorLog(str(e))
 
         return verified
 
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
     def processStdResponse(self, resp):
-        self._debug('HTTP %d %s' % (resp.status, resp.reason))
+        self.debugLog('HTTP %d %s' % (resp.status, resp.reason))
 
         root = ElementTree.fromstring(resp.read())
         content = root[0]
 
         if (content.tag == 'success'):
-            remain = content.attrib['remaining']
-            self._debug('success: ' + remain + ' calls remaining')
+            remain = int(content.attrib['remaining'])
+            self.debugLog('success: %d calls remaining' % remain)
 
         elif (content.tag == 'error'):
-            self._error('error: ' + content.text)
+            self.errorLog('error: %s' % content.text)
 
         else:
             # just in case something strange comes along...
             raise Exception('unknown response', content.tag)
 
         return (resp.status == 200)
-
-    #---------------------------------------------------------------------------
-    # convenience method for logging
-    def _log(self, msg):
-        indigo.server.log(msg)
-
-    #---------------------------------------------------------------------------
-    # convenience method for debug messages
-    def _debug(self, msg):
-        self.debugLog(msg)
-
-    #---------------------------------------------------------------------------
-    # convenience method for error messages
-    def _error(self, msg):
-        self.errorLog(msg)
 
