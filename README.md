@@ -70,7 +70,7 @@ Both the 'Title' and 'Message' allow standard variable and state substitutions. 
 insert `%%v:VARIABLEID%%` anywhere in the text as many times as you want. `VARIABLEID` is
 the variable's numeric id as found in the UI. Likewise, you can substitute device state
 values by inserting `%%d:DEVICEID:STATEKEY%%` where `DEVICEID` is the device's numeric id
-and the STATEKEY is the state identifier as found in the doucumentation for built-in
+and the `STATEKEY` is the state identifier as found in the doucumentation for built-in
 devices and in the Custom States tile in the control area of the Home screen for custom
 plugin devices.
 
