@@ -12,7 +12,7 @@ class Plugin(indigo.PluginBase):
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.updater = GitHubPluginUpdater(self)
-        self._initializeLogging(pluginPrefs)
+        self._loadPluginPrefs(pluginPrefs)
 
     #---------------------------------------------------------------------------
     def __del__(self):
@@ -47,7 +47,7 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     def closedPrefsConfigUi(self, values, canceled):
         if canceled: return
-        self._initializeLogging(values)
+        self._loadPluginPrefs(values)
 
     #---------------------------------------------------------------------------
     def validateActionConfigUi(self, values, typeId, devId):
@@ -110,15 +110,17 @@ class Plugin(indigo.PluginBase):
             self.logger.error(str(e))
 
     #---------------------------------------------------------------------------
-    def _initializeLogging(self, values):
-        levelTxt = values.get('logLevel', None)
+    def _loadPluginPrefs(self, values):
+        logLevelTxt = values.get('logLevel', None)
 
-        if levelTxt is None:
+        if logLevelTxt is None:
             self.logLevel = 20
         else:
-            self.logLevel = int(levelTxt)
+            logLevel = int(logLevelTxt)
+            self.logLevel = logLevel
 
         self.indigo_log_handler.setLevel(self.logLevel)
+        self.logger.debug(u'pluginPrefs[logLevel] - %s', self.logLevel)
 
     #---------------------------------------------------------------------------
     # verify the given API key is valid with Prowl
