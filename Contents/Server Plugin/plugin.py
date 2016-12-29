@@ -11,8 +11,8 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self.debug = pluginPrefs.get('debug', False)
         self.updater = GitHubPluginUpdater(self)
+        self._initializeLogging(pluginPrefs)
 
     #---------------------------------------------------------------------------
     def __del__(self):
@@ -27,11 +27,6 @@ class Plugin(indigo.PluginBase):
         self.updater.update()
 
     #---------------------------------------------------------------------------
-    def toggleDebugging(self):
-        self.debug = not self.debug
-        self.pluginPrefs['debug'] = self.debug
-
-    #---------------------------------------------------------------------------
     def validatePrefsConfigUi(self, values):
         errors = indigo.Dict()
 
@@ -44,15 +39,15 @@ class Plugin(indigo.PluginBase):
         apikey = values.get('apikey', '')
         if (len(apikey) == 0):
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif (not self.prowlVerify(apikey)):
+        elif (not self._prowlVerify(apikey)):
             errors['apikey'] = 'Invalid API key'
 
         return ((len(errors) == 0), values, errors)
 
     #---------------------------------------------------------------------------
     def closedPrefsConfigUi(self, values, canceled):
-        if (not canceled):
-            self.debug = values.get('debug', False)
+        if canceled: return
+        self._initializeLogging(values)
 
     #---------------------------------------------------------------------------
     def validateActionConfigUi(self, values, typeId, devId):
@@ -96,7 +91,7 @@ class Plugin(indigo.PluginBase):
             'description' : message,
             'application' : self.pluginPrefs.get('appname', 'Indigo')
         })
-        self.debugLog('notify: %s' % params)
+        self.logger.debug(u'notify: %s', params)
 
         # Prowl won't accept the POST unless it carries the right content type
         headers = {
@@ -109,43 +104,54 @@ class Plugin(indigo.PluginBase):
             resp = conn.getresponse()
 
             # so we can see the results in the log...
-            self.processStdResponse(resp)
+            self._processStdResponse(resp)
 
         except Exception as e:
-            self.errorLog(str(e))
+            self.logger.error(str(e))
+
+    #---------------------------------------------------------------------------
+    def _initializeLogging(self, values):
+        levelTxt = values.get('logLevel', None)
+
+        if levelTxt is None:
+            self.logLevel = 20
+        else:
+            self.logLevel = int(levelTxt)
+
+        self.indigo_log_handler.setLevel(self.logLevel)
 
     #---------------------------------------------------------------------------
     # verify the given API key is valid with Prowl
-    def prowlVerify(self, apikey):
+    def _prowlVerify(self, apikey):
         params = urllib.urlencode({ 'apikey': apikey })
-        self.debugLog('verify: %s' % params)
+        self.logger.debug(u'verify: %s', params)
         verified = False
 
         try:
             conn = httplib.HTTPConnection('api.prowlapp.com')
             conn.request('GET', '/publicapi/verify?' + params)
             resp = conn.getresponse()
-            verified = self.processStdResponse(resp)
+            verified = self._processStdResponse(resp)
 
         except Exception as e:
-            self.errorLog(str(e))
+            self.logger.error(str(e))
 
         return verified
 
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
-    def processStdResponse(self, resp):
-        self.debugLog('HTTP %d %s' % (resp.status, resp.reason))
+    def _processStdResponse(self, resp):
+        self.logger.debug(u'HTTP %d %s', resp.status, resp.reason)
 
         root = ElementTree.fromstring(resp.read())
         content = root[0]
 
         if (content.tag == 'success'):
             remain = int(content.attrib['remaining'])
-            self.debugLog('success: %d calls remaining' % remain)
+            self.logger.debug(u'success: %d calls remaining', remain)
 
         elif (content.tag == 'error'):
-            self.errorLog('error: %s' % content.text)
+            self.logger.warn(u'received error: %s', content.text)
 
         else:
             # just in case something strange comes along...
