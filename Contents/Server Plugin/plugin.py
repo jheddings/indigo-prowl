@@ -79,9 +79,9 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def notify(self, action):
-        # perform substitution on the title and message
-        title = self.substitute(action.props.get('title', ''))
-        message = self.substitute(action.props.get('message', ''))
+        # load fields and prepare for sending to Prowl
+        title = self._sanitize(action.props.get('title', ''))
+        message = self._sanitize(action.props.get('message', ''))
 
         # construct the API call body
         params = urllib.urlencode({
@@ -108,6 +108,17 @@ class Plugin(indigo.PluginBase):
 
         except Exception as e:
             self.logger.error(str(e))
+
+    #---------------------------------------------------------------------------
+    def _sanitize(self, value):
+        # substitute any Indigo placeholders
+        v = self.substitute(value)
+
+        # urlencode doesn't work with unicode, so encode as UTF-8
+        if isinstance(v, unicode):
+            v = v.encode('utf8')
+
+        return v
 
     #---------------------------------------------------------------------------
     def _loadPluginPrefs(self, values):
