@@ -6,15 +6,17 @@ import urllib
 
 from xml.etree import ElementTree
 
+# TODO improve local testing of this module
+
 ################################################################################
 class Client():
 
     #---------------------------------------------------------------------------
-    def __init__(self, appname, key):
+    def __init__(self, appname, apikey):
         self.logger = logging.getLogger('Plugin.prowl.Client')
 
         self.appname = appname
-        self.apikey = key
+        self.apikey = apikey
 
     #---------------------------------------------------------------------------
     def notify(self, message, title=None, priority=0):

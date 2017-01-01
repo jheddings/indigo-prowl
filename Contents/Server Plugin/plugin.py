@@ -4,6 +4,8 @@ import prowl
 
 from ghpu import GitHubPluginUpdater
 
+# TODO test this in a new DB
+
 ################################################################################
 class Plugin(indigo.PluginBase):
 
@@ -83,6 +85,7 @@ class Plugin(indigo.PluginBase):
         message = self._sanitize(action.props.get('message', ''))
         priority = int(action.props.get('priority', '0'))
 
+        # TODO debug logging here
         self.client.notify(message, title=title, priority=priority)
 
     #---------------------------------------------------------------------------
