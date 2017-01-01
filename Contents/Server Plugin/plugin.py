@@ -1,9 +1,8 @@
 #!/usr/bin/env python2.5
 
-import os, httplib, urllib, plistlib
+import prowl
 
 from ghpu import GitHubPluginUpdater
-from xml.etree import ElementTree
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -39,7 +38,7 @@ class Plugin(indigo.PluginBase):
         apikey = values.get('apikey', '')
         if (len(apikey) == 0):
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif (not self._prowlVerify(apikey)):
+        elif (not self.client.verifyCredentials()):
             errors['apikey'] = 'Invalid API key'
 
         return ((len(errors) == 0), values, errors)
@@ -79,35 +78,12 @@ class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def notify(self, action):
-        # load fields and prepare for sending to Prowl
+        # load fields and send using the Prowl client
         title = self._sanitize(action.props.get('title', ''))
         message = self._sanitize(action.props.get('message', ''))
+        priority = int(action.props.get('priority', '0'))
 
-        # construct the API call body
-        params = urllib.urlencode({
-            'apikey' : self.pluginPrefs.get('apikey', None),
-            'priority' : action.props.get('priority', '0'),
-            'event' : title,
-            'description' : message,
-            'application' : self.pluginPrefs.get('appname', 'Indigo')
-        })
-        self.logger.debug(u'notify: %s', params)
-
-        # Prowl won't accept the POST unless it carries the right content type
-        headers = {
-            'Content-type': 'application/x-www-form-urlencoded'
-        }
-
-        try:
-            conn = httplib.HTTPSConnection('api.prowlapp.com')
-            conn.request('POST', '/publicapi/add', params, headers)
-            resp = conn.getresponse()
-
-            # so we can see the results in the log...
-            self._processStdResponse(resp)
-
-        except Exception as e:
-            self.logger.error(str(e))
+        self.client.notify(message, title=title, priority=priority)
 
     #---------------------------------------------------------------------------
     def _sanitize(self, value):
@@ -133,42 +109,7 @@ class Plugin(indigo.PluginBase):
         self.indigo_log_handler.setLevel(self.logLevel)
         self.logger.debug(u'pluginPrefs[logLevel] - %s', self.logLevel)
 
-    #---------------------------------------------------------------------------
-    # verify the given API key is valid with Prowl
-    def _prowlVerify(self, apikey):
-        params = urllib.urlencode({ 'apikey': apikey })
-        self.logger.debug(u'verify: %s', params)
-        verified = False
-
-        try:
-            conn = httplib.HTTPConnection('api.prowlapp.com')
-            conn.request('GET', '/publicapi/verify?' + params)
-            resp = conn.getresponse()
-            verified = self._processStdResponse(resp)
-
-        except Exception as e:
-            self.logger.error(str(e))
-
-        return verified
-
-    #---------------------------------------------------------------------------
-    # returns True if the response represents success, False otherwise
-    def _processStdResponse(self, resp):
-        self.logger.debug(u'HTTP %d %s', resp.status, resp.reason)
-
-        root = ElementTree.fromstring(resp.read())
-        content = root[0]
-
-        if (content.tag == 'success'):
-            remain = int(content.attrib['remaining'])
-            self.logger.debug(u'success: %d calls remaining', remain)
-
-        elif (content.tag == 'error'):
-            self.logger.warn(u'received error: %s', content.text)
-
-        else:
-            # just in case something strange comes along...
-            raise Exception('unknown response', content.tag)
-
-        return (resp.status == 200)
+        appname = values.get('appname', None)
+        apikey = values.get('apikey', None)
+        self.client = prowl.Client(appname, apikey)
 
