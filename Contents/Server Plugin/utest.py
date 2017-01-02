@@ -6,7 +6,7 @@ import unittest
 import prowl
 
 # keep logging output to a minumim for testing
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.DEBUG)
 
 # XXX note that the API keys in this file are specific to my user account...  they
 # should never be used in production, since their limits are often exceeded during
@@ -17,12 +17,12 @@ class VerifyAPIKey(unittest.TestCase):
 
     def test_valid_key(self):
         # this is a valid API key for development
-        client = prowl.Client('Unit Test', '117644459ad8c4f530df4796ed45e8fda5c6abc2')
+        client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
         valid = client.verifyCredentials()
         self.assertTrue(valid, 'verify failed using a valid key')
 
     def test_invalid_key(self):
-        # a valid-looking key with a single character change
+        # a valid-looking key
         client = prowl.Client('Unit Test', '117644459ad8c4f530df3796ed45e8fda5c6abc2')
         valid = client.verifyCredentials()
         self.assertFalse(valid, 'client accepted an invalid key')
@@ -55,7 +55,7 @@ class VerifyAPIKey(unittest.TestCase):
 class APILimit(unittest.TestCase):
 
     def setUp(self):
-        client = prowl.Client('Unit Test', '117644459ad8c4f530df4796ed45e8fda5c6abc2')
+        client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
         self.assertIsNone(client.remaining)
 
         # verify once to read the remaining call count
@@ -77,7 +77,7 @@ class TestMessagePriority(unittest.TestCase):
 
     def setUp(self):
         # using the same client for each notification
-        self.client = prowl.Client('Unit Test', '117644459ad8c4f530df4796ed45e8fda5c6abc2')
+        self.client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
 
     def test_emergency_message(self):
         success = self.client.notify('Emergency message', priority=2)
@@ -108,7 +108,7 @@ class TestStandardNotifications(unittest.TestCase):
 
     def setUp(self):
         # using the same client for each notification
-        self.client = prowl.Client('Unit Test', '117644459ad8c4f530df4796ed45e8fda5c6abc2')
+        self.client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
 
     def test_basic_message(self):
         success = self.client.notify('Basic test message')
