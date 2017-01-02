@@ -81,23 +81,12 @@ class Plugin(indigo.PluginBase):
     #---------------------------------------------------------------------------
     def notify(self, action):
         # load fields and send using the Prowl client
-        title = self._sanitize(action.props.get('title', ''))
-        message = self._sanitize(action.props.get('message', ''))
+        title = self.substitute(action.props.get('title', ''))
+        message = self.substitute(action.props.get('message', ''))
         priority = int(action.props.get('priority', '0'))
 
         # TODO debug logging here
         self.client.notify(message, title=title, priority=priority)
-
-    #---------------------------------------------------------------------------
-    def _sanitize(self, value):
-        # substitute any Indigo placeholders
-        v = self.substitute(value)
-
-        # urlencode doesn't work with unicode, so encode as UTF-8
-        if isinstance(v, unicode):
-            v = v.encode('utf8')
-
-        return v
 
     #---------------------------------------------------------------------------
     def _loadPluginPrefs(self, values):

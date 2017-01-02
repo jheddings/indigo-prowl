@@ -6,7 +6,7 @@ import unittest
 import prowl
 
 # keep logging output to a minumim for testing
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 # XXX note that the API keys in this file are specific to my user account...  they
 # should never be used in production, since their limits are often exceeded during

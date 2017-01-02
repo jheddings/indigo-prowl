@@ -26,9 +26,9 @@ class Client():
         params = urllib.urlencode({
             'apikey' : self.apikey,
             'priority' : str(priority),
-            'event' : title,
-            'description' : message,
-            'application' : self.appname
+            'event' : self._sanitize(title),
+            'description' : self._sanitize(message),
+            'application' : self._sanitize(self.appname)
         })
         self.logger.debug(u'notify: %s', params)
 
@@ -68,6 +68,14 @@ class Client():
             self.logger.error(str(e))
 
         return verified
+
+    #---------------------------------------------------------------------------
+    def _sanitize(self, value):
+        # urlencode doesn't work with unicode, so encode as UTF-8
+        if isinstance(value, unicode):
+            value = value.encode('utf8')
+
+        return value
 
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
