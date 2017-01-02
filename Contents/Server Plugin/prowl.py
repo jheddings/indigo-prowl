@@ -18,6 +18,8 @@ class Client():
         self.appname = appname
         self.apikey = apikey
 
+        self.remaining = None
+
     #---------------------------------------------------------------------------
     def notify(self, message, title=None, priority=0):
         # construct the API call body
@@ -35,16 +37,19 @@ class Client():
             'Content-type': 'application/x-www-form-urlencoded'
         }
 
+        success = None
+
         try:
             conn = httplib.HTTPSConnection('api.prowlapp.com')
             conn.request('POST', '/publicapi/add', params, headers)
             resp = conn.getresponse()
-
-            # so we can see the results in the log...
-            self._processStdResponse(resp)
+            success = self._processStdResponse(resp)
 
         except Exception as e:
             self.logger.error(str(e))
+            success = False
+
+        return success
 
     #---------------------------------------------------------------------------
     # verify the internal credentials are valid
@@ -73,8 +78,8 @@ class Client():
         content = root[0]
 
         if (content.tag == 'success'):
-            remain = int(content.attrib['remaining'])
-            self.logger.debug(u'success: %d calls remaining', remain)
+            self.remaining = int(content.attrib['remaining'])
+            self.logger.debug(u'success: %d calls remaining', self.remaining)
 
         elif (content.tag == 'error'):
             self.logger.warn(u'received error: %s', content.text)
