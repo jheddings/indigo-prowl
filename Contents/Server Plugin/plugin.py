@@ -40,8 +40,11 @@ class Plugin(indigo.PluginBase):
         apikey = values.get('apikey', None)
         if apikey is None or len(apikey) == 0:
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif not prowl.Client.verifyAPIKey(apikey):
-            errors['apikey'] = 'Invalid API key'
+        else:
+            # we need a temporary client to validate the API key
+            client = prowl.Client('VERIFY_ONLY', apikey)
+            if not client.verifyCredentials():
+                errors['apikey'] = 'Invalid API key (or call limit exceeded)'
 
         return ((len(errors) == 0), values, errors)
 
