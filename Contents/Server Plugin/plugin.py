@@ -32,15 +32,15 @@ class Plugin(indigo.PluginBase):
         errors = indigo.Dict()
 
         # application name is required...
-        appname = values.get('appname', '')
-        if (len(appname) == 0):
+        appname = values.get('appname', None)
+        if appname is None or len(appname) == 0:
             errors['appname'] = 'You must provide an application name'
 
         # an API key is required and must be valid...
-        apikey = values.get('apikey', '')
-        if (len(apikey) == 0):
+        apikey = values.get('apikey', None)
+        if apikey is None or len(apikey) == 0:
             errors['apikey'] = 'You must provide your Prowl API key'
-        elif (not self.client.verifyCredentials()):
+        elif not prowl.Client.verifyAPIKey(apikey):
             errors['apikey'] = 'Invalid API key'
 
         return ((len(errors) == 0), values, errors)
@@ -59,19 +59,19 @@ class Plugin(indigo.PluginBase):
         header = 'Prowl [' + priority + ']: '
 
         # the title is not required, but check substitutions if it is there...
-        title = values.get('title', '')
-        if (len(title) > 0):
+        title = values.get('title', None)
+        if title is not None and len(title) > 0:
             subst = self.substitute(title, validateOnly=True)
             if (subst[0]): header += title + '-'
             else: errors['title'] = subst[1]
 
         # a message is required, and we'll verify substitutions
-        message = values.get('message', '')
-        if (len(message) == 0):
+        message = values.get('message', None)
+        if message is None or len(message) == 0:
             errors['message'] = 'You must provide a message'
         else:
             subst = self.substitute(message, validateOnly=True)
-            if (not subst[0]): errors['message'] = subst[1]
+            if not subst[0]: errors['message'] = subst[1]
 
         # create the description for Indigo's UI
         values['description'] = header + message

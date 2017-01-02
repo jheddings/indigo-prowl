@@ -6,10 +6,10 @@ import urllib
 
 from xml.etree import ElementTree
 
-# TODO improve local testing of this module
-
 ################################################################################
 class Client():
+
+    apiroot = 'https://api.prowlapp.com/publicapi'
 
     #---------------------------------------------------------------------------
     def __init__(self, appname, apikey):
@@ -21,27 +21,44 @@ class Client():
         self.remaining = None
 
     #---------------------------------------------------------------------------
-    def notify(self, message, title=None, priority=0):
-        # construct the API call body
-        params = urllib.urlencode({
-            'apikey' : self.apikey,
-            'priority' : str(priority),
-            'event' : self._sanitize(title),
-            'description' : self._sanitize(message),
-            'application' : self._sanitize(self.appname)
-        })
-        self.logger.debug(u'notify: %s', params)
-
-        # Prowl won't accept the POST unless it carries the right content type
-        headers = {
-            'Content-type': 'application/x-www-form-urlencoded'
+    # verify the internal credentials are valid
+    def verifyCredentials(self):
+        params = {
+            'apikey': self.apikey
         }
 
+        self.logger.debug(u'verify: %s', params)
+        return self._api_get('verify', params)
+
+    #---------------------------------------------------------------------------
+    def notify(self, message, title=None, priority=0):
+        params = {
+            'priority' : str(priority),
+            'application' : self._sanitize(self.appname),
+            'event' : self._sanitize(title),
+            'description' : self._sanitize(message),
+            'apikey' : self.apikey
+        }
+
+        self.logger.debug(u'notify: %s', params)
+        return self._api_post('add', params)
+
+    #---------------------------------------------------------------------------
+    def _sanitize(self, value):
+        # urlencode doesn't work with unicode, so encode as UTF-8
+        if isinstance(value, unicode): value = value.encode('utf8')
+
+        return value
+
+    #---------------------------------------------------------------------------
+    def _api_get(self, func, params):
+        data = urllib.urlencode(params)
+        path = '/publicapi/%s?%s' % (func, data)
         success = None
 
         try:
             conn = httplib.HTTPSConnection('api.prowlapp.com')
-            conn.request('POST', '/publicapi/add', params, headers)
+            conn.request('GET', path)
             resp = conn.getresponse()
             success = self._processStdResponse(resp)
 
@@ -52,30 +69,26 @@ class Client():
         return success
 
     #---------------------------------------------------------------------------
-    # verify the internal credentials are valid
-    def verifyCredentials(self):
-        params = urllib.urlencode({ 'apikey': self.apikey })
-        self.logger.debug(u'verify: %s', params)
-        verified = False
+    def _api_post(self, func, params):
+        data = urllib.urlencode(params)
+        path = '/publicapi/%s' % func
+        success = None
+
+        headers = {
+            'Content-type': 'application/x-www-form-urlencoded'
+        }
 
         try:
-            conn = httplib.HTTPConnection('api.prowlapp.com')
-            conn.request('GET', '/publicapi/verify?' + params)
+            conn = httplib.HTTPSConnection('api.prowlapp.com')
+            conn.request('POST', path, data, headers)
             resp = conn.getresponse()
-            verified = self._processStdResponse(resp)
+            success = self._processStdResponse(resp)
 
         except Exception as e:
             self.logger.error(str(e))
+            success = False
 
-        return verified
-
-    #---------------------------------------------------------------------------
-    def _sanitize(self, value):
-        # urlencode doesn't work with unicode, so encode as UTF-8
-        if isinstance(value, unicode):
-            value = value.encode('utf8')
-
-        return value
+        return success
 
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
