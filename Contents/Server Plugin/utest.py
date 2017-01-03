@@ -76,7 +76,6 @@ class APILimit(unittest.TestCase):
 class TestMessagePriority(unittest.TestCase):
 
     def setUp(self):
-        # using the same client for each notification
         self.client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
 
     def test_emergency_message(self):
@@ -104,10 +103,9 @@ class TestMessagePriority(unittest.TestCase):
         self.assertFalse(success, 'notification should not have sent')
 
 ################################################################################
-class TestStandardNotifications(unittest.TestCase):
+class TestNotifications(unittest.TestCase):
 
     def setUp(self):
-        # using the same client for each notification
         self.client = prowl.Client('Unit Test', '04db42f70722c526b71722fca57e790e47bd426b')
 
     def test_basic_message(self):
@@ -121,6 +119,22 @@ class TestStandardNotifications(unittest.TestCase):
     def test_message_with_title(self):
         success = self.client.notify('Basic message with title', title='Test Message')
         self.assertTrue(success, 'notification failed')
+
+    def test_message_no_title(self):
+        success = self.client.notify('Basic message with no title')
+        self.assertTrue(success, 'notification failed')
+
+    def test_message_blank_title(self):
+        success = self.client.notify('Basic message with blank title', title='')
+        self.assertTrue(success, 'notification failed')
+
+    def test_blank_message(self):
+        success = self.client.notify(None, title='Blank Message')
+        self.assertTrue(success, 'notification failed')
+
+    def test_blank_message_and_title(self):
+        success = self.client.notify(None)
+        self.assertFalse(success, 'must provide title or message')
 
 ################################################################################
 ## MAIN ENTRY

@@ -31,14 +31,18 @@ class Client():
         return self._api_get('verify', params)
 
     #---------------------------------------------------------------------------
-    def notify(self, message, title=None, priority=0):
+    def notify(self, message=None, title=None, url=None, priority=0):
         params = {
             'priority' : str(priority),
             'application' : self._sanitize(self.appname),
-            'event' : self._sanitize(title),
-            'description' : self._sanitize(message),
             'apikey' : self.apikey
         }
+
+        if title is not None and len(title) > 0:
+            params['event'] = self._sanitize(title)
+
+        if message is not None and len(message) > 0:
+            params['description'] = self._sanitize(message)
 
         self.logger.debug(u'notify: %s', params)
         return self._api_post('add', params)
