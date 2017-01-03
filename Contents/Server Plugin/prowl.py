@@ -44,6 +44,9 @@ class Client():
         if message is not None and len(message) > 0:
             params['description'] = self._sanitize(message)
 
+        if url is not None and len(url) > 0:
+            params['url'] = url
+
         self.logger.debug(u'notify: %s', params)
         return self._api_post('add', params)
 

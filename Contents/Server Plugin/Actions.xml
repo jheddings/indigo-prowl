@@ -9,15 +9,19 @@
       <Field id="title" type="textfield">
         <Label>Title:</Label>
       </Field>
-      <Field id="titleHelp" type="label" fontSize="mini" alignWithControl="true">
-        <Label>(optional) the title or event for your message</Label>
-      </Field>
 
       <Field id="message" type="textfield">
         <Label>Message:</Label>
       </Field>
       <Field id="messageHelp" type="label" fontSize="mini" alignWithControl="true">
-        <Label>(required) the content of your message</Label>
+        <Label>you mut provide either Title or Message or both</Label>
+      </Field>
+
+      <Field id="url" type="textfield">
+        <Label>URL:</Label>
+      </Field>
+      <Field id="urlHelp" type="label" fontSize="mini" alignWithControl="true">
+        <Label>(optional) a redirect URL when opening the notification</Label>
       </Field>
 
       <Field id="priority" type="menu" defaultValue="0">

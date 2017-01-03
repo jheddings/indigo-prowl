@@ -136,6 +136,14 @@ class TestNotifications(unittest.TestCase):
         success = self.client.notify(None)
         self.assertFalse(success, 'must provide title or message')
 
+    def test_message_with_url(self):
+        success = self.client.notify('Search me', 'https://google.com')
+        self.assertTrue(success, 'notification failed')
+
+    def test_message_with_app_url(self):
+        success = self.client.notify('Open Indigo', 'indigo://controlpage/')
+        self.assertTrue(success, 'notification failed')
+
 ################################################################################
 ## MAIN ENTRY
 

@@ -4,8 +4,6 @@ import prowl
 
 from ghpu import GitHubPluginUpdater
 
-# TODO test this in a new DB
-
 ################################################################################
 class Plugin(indigo.PluginBase):
 
@@ -59,25 +57,29 @@ class Plugin(indigo.PluginBase):
 
         # building a description for the Indigio UI...
         priority = values['priority'];
-        header = 'Prowl [' + priority + ']: '
+        desc = 'Prowl [' + priority + ']: '
 
-        # the title is not required, but check substitutions if it is there...
         title = values.get('title', None)
         if title is not None and len(title) > 0:
             subst = self.substitute(title, validateOnly=True)
-            if (subst[0]): header += title + '-'
+            if subst[0]: desc += title + '-'
             else: errors['title'] = subst[1]
 
-        # a message is required, and we'll verify substitutions
         message = values.get('message', None)
-        if message is None or len(message) == 0:
-            errors['message'] = 'You must provide a message'
-        else:
+        if message is not None and len(message) > 0:
             subst = self.substitute(message, validateOnly=True)
-            if not subst[0]: errors['message'] = subst[1]
+            if subst[0]: desc += message
+            else: errors['message'] = subst[1]
+
+        # FIXME a message or title is required
+
+        url = values.get('url', None)
+        if url is not None and len(url) > 0:
+            subst = self.substitute(url, validateOnly=True)
+            if not subst[0]: errors['url'] = subst[1]
 
         # create the description for Indigo's UI
-        values['description'] = header + message
+        values['description'] = desc
 
         return ((len(errors) == 0), values, errors)
 
@@ -86,10 +88,11 @@ class Plugin(indigo.PluginBase):
         # load fields and send using the Prowl client
         title = self.substitute(action.props.get('title', ''))
         message = self.substitute(action.props.get('message', ''))
+        url = self.substitute(action.props.get('url', ''))
         priority = int(action.props.get('priority', '0'))
 
         # TODO debug logging here
-        self.client.notify(message, title=title, priority=priority)
+        self.client.notify(message=message, title=title, priority=priority, url=url)
 
     #---------------------------------------------------------------------------
     def _loadPluginPrefs(self, values):
