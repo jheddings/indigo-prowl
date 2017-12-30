@@ -2,28 +2,17 @@
 
 import prowl
 
-from ghpu import GitHubPluginUpdater
-
 ################################################################################
 class Plugin(indigo.PluginBase):
 
     #---------------------------------------------------------------------------
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self.updater = GitHubPluginUpdater(self)
         self._loadPluginPrefs(pluginPrefs)
 
     #---------------------------------------------------------------------------
     def __del__(self):
         indigo.PluginBase.__del__(self)
-
-    #---------------------------------------------------------------------------
-    def checkForUpdates(self):
-        self.updater.checkForUpdate()
-
-    #---------------------------------------------------------------------------
-    def updatePlugin(self):
-        self.updater.update()
 
     #---------------------------------------------------------------------------
     def validatePrefsConfigUi(self, values):

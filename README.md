@@ -27,15 +27,17 @@ it out.
 
 ## Installation
 
-This plugin is installed like any other Indigo plugin.  Visit the
+### Automatic Installation
+
+The easiest way to install and keep up to date with this plugin is to install from the
+[Indigo Plugin Store][http://www.indigodomo.com/pluginstore/].
+
+### Manual Installation
+
+If you don't want to use the Plugin Store release for some reason, Visit the
 [releases](https://github.com/jheddings/indigo-prowl/releases) page and download the latest
 version.  For advanced users, you may also clone the source tree directly into your Indigo
 plugins folder, making updates as easy as pull & reload.
-
-Once downloaded, extract the zip file and double-click the Prowl.indigoPlugin package.
-Note that you must do this on the same computer that is running your Indigo server.  If
-there is already a version of the plugin installed, Indigo will prompt you to replace it
-with the newer version.
 
 ## Configuration
 
@@ -74,7 +76,3 @@ and the `STATEKEY` is the state identifier as found in the doucumentation for bu
 devices and in the Custom States tile in the control area of the Home screen for custom
 plugin devices.
 
-## Updates
-
-From the plugin's menu, select "Check for Updates" to look for newer releases of the
-plugin.  Any updates will be displayed in the Indigo event log.
