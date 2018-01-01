@@ -31,6 +31,7 @@ class Plugin(indigo.PluginBase):
             # we need a temporary client to validate the API key
             client = prowl.Client('VERIFY_ONLY', apikey)
             if not client.verifyCredentials():
+                self.logger.warn('Could not verify API key')
                 errors['apikey'] = 'Invalid API key (or call limit exceeded)'
 
         return ((len(errors) == 0), values, errors)
@@ -80,7 +81,7 @@ class Plugin(indigo.PluginBase):
         url = self.substitute(action.props.get('url', ''))
         priority = int(action.props.get('priority', '0'))
 
-        # TODO debug logging here
+        self.logger.debug(u'notify: [%d] %s - %s', priority, title, message)
         self.client.notify(message=message, title=title, priority=priority, url=url)
 
     #---------------------------------------------------------------------------
@@ -94,9 +95,10 @@ class Plugin(indigo.PluginBase):
             self.logLevel = logLevel
 
         self.indigo_log_handler.setLevel(self.logLevel)
-        self.logger.debug(u'pluginPrefs[logLevel] - %s', self.logLevel)
 
         appname = values.get('appname', None)
         apikey = values.get('apikey', None)
+
+        self.logger.debug(u'initializing Prowl client: %s {%s}', appname, apikey)
         self.client = prowl.Client(appname, apikey)
 
