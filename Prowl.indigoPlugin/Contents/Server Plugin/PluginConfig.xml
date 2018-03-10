@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PluginConfig>
-  <SupportURL>https://github.com/jheddings/indigo-prowl</SupportURL>
+  <SupportURL>http://forums.indigodomo.com/viewforum.php?f=231</SupportURL>
 
   <Field id="appname" type="textfield" defaultValue="Indigo">
     <Label>Application Name:</Label>
