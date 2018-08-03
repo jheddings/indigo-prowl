@@ -2,17 +2,10 @@
 
 import prowl
 
+import iplug
+
 ################################################################################
-class Plugin(indigo.PluginBase):
-
-    #---------------------------------------------------------------------------
-    def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
-        indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self._loadPluginPrefs(pluginPrefs)
-
-    #---------------------------------------------------------------------------
-    def __del__(self):
-        indigo.PluginBase.__del__(self)
+class Plugin(iplug.PluginBase):
 
     #---------------------------------------------------------------------------
     def validatePrefsConfigUi(self, values):
@@ -35,11 +28,6 @@ class Plugin(indigo.PluginBase):
                 errors['apikey'] = 'Invalid API key (or call limit exceeded)'
 
         return ((len(errors) == 0), values, errors)
-
-    #---------------------------------------------------------------------------
-    def closedPrefsConfigUi(self, values, canceled):
-        if canceled: return
-        self._loadPluginPrefs(values)
 
     #---------------------------------------------------------------------------
     def validateActionConfigUi(self, values, typeId, devId):
@@ -85,16 +73,8 @@ class Plugin(indigo.PluginBase):
         self.client.notify(message=message, title=title, priority=priority, url=url)
 
     #---------------------------------------------------------------------------
-    def _loadPluginPrefs(self, values):
-        logLevelTxt = values.get('logLevel', None)
-
-        if logLevelTxt is None:
-            self.logLevel = 20
-        else:
-            logLevel = int(logLevelTxt)
-            self.logLevel = logLevel
-
-        self.indigo_log_handler.setLevel(self.logLevel)
+    def loadPluginPrefs(self, values):
+        iplug.PluginBase.loadPluginPrefs(self, values)
 
         appname = values.get('appname', None)
         apikey = values.get('apikey', None)
