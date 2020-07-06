@@ -39,10 +39,7 @@
       </Field>
 
       <!-- used to show the description in Indigo -->
-			<Field id="description" type="textfield" hidden="true">
-				<Label></Label>
-			</Field>
-
+      <Field id="description" type="textfield" hidden="true" />
     </ConfigUI>
   </Action>
 </Actions>
