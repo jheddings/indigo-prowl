@@ -1,15 +1,14 @@
 ## Prowl interface
 
 import logging
-import httplib
-import urllib
+import requests
 
 from xml.etree import ElementTree
 
+API_BASE_URL = 'https://api.prowlapp.com/publicapi'
+
 ################################################################################
 class Client():
-
-    apiroot = 'https://api.prowlapp.com/publicapi'
 
     #---------------------------------------------------------------------------
     def __init__(self, appname, apikey):
@@ -34,15 +33,15 @@ class Client():
     def notify(self, message=None, title=None, url=None, priority=0):
         params = {
             'priority' : str(priority),
-            'application' : self._sanitize(self.appname),
+            'application' : self.appname,
             'apikey' : self.apikey
         }
 
         if title is not None and len(title) > 0:
-            params['event'] = self._sanitize(title)
+            params['event'] = title
 
         if message is not None and len(message) > 0:
-            params['description'] = self._sanitize(message)
+            params['description'] = message
 
         if url is not None and len(url) > 0:
             params['url'] = url
@@ -51,22 +50,10 @@ class Client():
         return self._api_post('add', params)
 
     #---------------------------------------------------------------------------
-    def _sanitize(self, value):
-        # urlencode doesn't work with unicode, so encode as UTF-8
-        if isinstance(value, unicode): value = value.encode('utf8')
-
-        return value
-
-    #---------------------------------------------------------------------------
     def _api_get(self, func, params):
-        data = urllib.urlencode(params)
-        path = '/publicapi/%s?%s' % (func, data)
-        success = None
 
         try:
-            conn = httplib.HTTPSConnection('api.prowlapp.com')
-            conn.request('GET', path)
-            resp = conn.getresponse()
+            resp = requests.get(f'{API_BASE_URL}/{func}', params=params)
             success = self._processStdResponse(resp)
 
         except Exception as e:
@@ -77,8 +64,6 @@ class Client():
 
     #---------------------------------------------------------------------------
     def _api_post(self, func, params):
-        data = urllib.urlencode(params)
-        path = '/publicapi/%s' % func
         success = None
 
         headers = {
@@ -86,9 +71,7 @@ class Client():
         }
 
         try:
-            conn = httplib.HTTPSConnection('api.prowlapp.com')
-            conn.request('POST', path, data, headers)
-            resp = conn.getresponse()
+            resp = requests.get(f'{API_BASE_URL}/{func}', params=params, headers=headers)
             success = self._processStdResponse(resp)
 
         except Exception as e:
@@ -100,9 +83,9 @@ class Client():
     #---------------------------------------------------------------------------
     # returns True if the response represents success, False otherwise
     def _processStdResponse(self, resp):
-        self.logger.debug(u'HTTP %d %s', resp.status, resp.reason)
+        self.logger.debug(u'HTTP %d %s', resp.status_code, resp.reason)
 
-        root = ElementTree.fromstring(resp.read())
+        root = ElementTree.fromstring(resp.content)
         content = root[0]
 
         if (content.tag == 'success'):
@@ -116,5 +99,4 @@ class Client():
             # just in case something strange comes along...
             raise Exception('unknown response', content.tag)
 
-        return (resp.status == 200)
-
+        return (resp.status_code == 200)
